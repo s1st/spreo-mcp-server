@@ -27,14 +27,17 @@ export interface ParsedBoard {
 }
 
 function extractText(state: Record<string, unknown>): string {
-  return (
-    (state["content"] as string) ||
-    (state["content|value"] as string) ||
-    (state["value"] as string) ||
-    (state["text"] as string) ||
-    (state["url"] as string) ||
-    ""
-  );
+  const candidates = [
+    state["content"],
+    state["content|value"],
+    state["value"],
+    state["text"],
+    state["url"],
+  ];
+  for (const c of candidates) {
+    if (typeof c === "string" && c.length > 0) return c;
+  }
+  return "";
 }
 
 function cleanSectionTitle(raw: string): string {
@@ -198,9 +201,39 @@ export function parseSnapshot(
   };
 }
 
+export interface FrameInfo {
+  id: string;
+  title: string;
+  x: number;
+  y: number;
+  itemCount: number;
+}
+
+export function extractFrames(snapshot: Snapshot): FrameInfo[] {
+  const { instances, states, childLinks } = snapshot;
+  const frames: FrameInfo[] = [];
+
+  for (const [id, inst] of Object.entries(instances)) {
+    if (inst.type !== "Frame") continue;
+    const state = states[id] ?? {};
+    const title = extractText(state) || "(untitled)";
+    const x = (typeof state["x"] === "number" ? state["x"] : 0);
+    const y = (typeof state["y"] === "number" ? state["y"] : 0);
+
+    const descendants = new Set<string>();
+    collectDescendants(id, childLinks, descendants);
+
+    frames.push({ id, title, x, y, itemCount: descendants.size });
+  }
+
+  frames.sort((a, b) => a.x - b.x || a.y - b.y);
+  return frames;
+}
+
 export function formatParsedBoard(
   board: ParsedBoard,
-  boardName: string
+  boardName: string,
+  options?: { frames?: FrameInfo[] }
 ): string {
   const lines: string[] = [];
 
@@ -234,6 +267,14 @@ export function formatParsedBoard(
       const content = item.content.replace(/\n/g, " ");
       const prefix = item.type === "Text" ? "" : `[${item.type}] `;
       lines.push(`- ${prefix}${content}`);
+    }
+    lines.push("");
+  }
+
+  if (options?.frames && options.frames.length > 0) {
+    lines.push("### Frames (for use with get_frame_image)");
+    for (const f of options.frames) {
+      lines.push(`- **${f.title}** — frameId: \`${f.id}\` (${f.itemCount} items)`);
     }
     lines.push("");
   }
