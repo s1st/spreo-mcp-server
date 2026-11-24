@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 MCP server that exposes [Spreo](https://spreo.io/) (formerly Ludi / Metro Retro) boards to AI assistants via the Model Context Protocol. Six read tools (unrestricted) plus two write tools limited to board creation. The server can read board content and create new boards (blank or from a template), but it CANNOT add individual items to a board, nor edit or delete existing boards/content — board content is only editable in the Spreo app.
 
-> **Write scope (why):** Spreo board *content* is not writable over the REST API — it's mutated over an undocumented realtime op-stream (`pods.transactions`). The only content-write path REST offers is cloning a template at board-creation time (`boards.create` with `source: <templateId>`, which copies the template's items synchronously). Hence `create_board` + `list_templates`, and no per-item add/edit/delete tools. Full investigation in `write-expansion/FINDINGS.md`.
+> **Write scope (why):** Spreo board *content* is not writable over the REST API — it's mutated over an undocumented realtime op-stream (`pods.transactions`). The only content-write path REST offers is cloning a template at board-creation time (`boards.create` with `source: <templateId>`, which copies the template's items synchronously). Hence `create_board` + `list_templates`, and no per-item add/edit/delete tools.
 
 > **Rename:** product renamed Ludi → Spreo (July 2026). API at `spreo.io/api/v2` (`ludi.co` still 301-redirects); key env var is `SPREO_API_KEY` (old `LUDI_API_KEY` accepted as fallback in `api.ts`).
 
