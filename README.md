@@ -1,5 +1,12 @@
 # spreo-mcp-server
 
+> [!WARNING]
+> **Deprecated — this project is no longer maintained.** Spreo now provides an official, hosted MCP server that can also edit board content: [spreo-app/mcp](https://github.com/spreo-app/mcp) (`https://mcp.spreo.io/mcp`, OAuth, no API key needed). Please use that instead.
+>
+> ```bash
+> claude mcp add --transport http spreo https://mcp.spreo.io/mcp
+> ```
+
 MCP server that gives AI assistants access to [Spreo](https://spreo.io/) boards (formerly Ludi / Metro Retro): read board content, and create new boards from templates.
 
 > **Rename note:** the product was renamed **Ludi → Spreo** (July 2026). The API now lives at `spreo.io` (`ludi.co` still 301-redirects) and the API-key env var is **`SPREO_API_KEY`** (the old `LUDI_API_KEY` is still accepted as a fallback).
